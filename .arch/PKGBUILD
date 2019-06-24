@@ -1,0 +1,55 @@
+# Maintainer: George Raven <GeorgeRavenCommunity AT outlook dot com>
+pkgname=vulkai-git
+pkgsrcname="vulkai"
+
+pkgver=0.0.0
+
+pkgrel=1
+pkgdesc="Experimental Vulkan-base deep neural networks"
+arch=('x86_64')
+
+# vulkai source code url
+url="https://github.com/DreamingRaven/vulkai"
+# set what branch you would like to pull from
+branch="master"
+
+license=('MIT') # MIT is a special case store a copy in /usr/share/pkgname
+groups=("vulkai-base")
+depends=('git')
+makedepends=('git' 'cmake' 'make') # 'bzr', 'git', 'mercurial' or 'subversion'
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=()
+install=
+source=("${pkgsrcname}::git+https://github.com/DreamingRaven/${pkgsrcname}#branch\=${branch}")
+noextract=()
+md5sums=('SKIP')
+
+pkgver() {
+	cd "$srcdir/${pkgsrcname}"
+	printf "%s" "$(git describe --long | sed 's/\([^-]*-\)g/r\1/;s/-/./g')"
+}
+
+prepare() {
+	cd "$srcdir/${pkgsrcname}"
+	git checkout ${branch} # get off of makepkg branch
+}
+
+build() {
+	cd "$srcdir/${pkgsrcname}"
+}
+
+check() {
+	cd "$srcdir/${pkgsrcname}"
+	# check that program can run while self checking and updating if somethings missing
+	python3 nemesyst.py --toUpdate
+}
+
+package() {
+	cd "$srcdir/${pkgsrcname}"
+	python3 setup.py install --prefix=/usr --root="$pkgdir/" --optimize=1
+	install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
